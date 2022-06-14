@@ -2,8 +2,8 @@
 #include <IOXhop_FirebaseESP32.h>                           
 #include <ArduinoJson.h>                   
 
-#define WIFI_SSID "Covil do Mal"                   
-#define WIFI_PASSWORD "megamente"         
+#define WIFI_SSID "Galaxy A7"                   
+#define WIFI_PASSWORD "lari080803"         
 #define FIREBASE_HOST "https://smartcabinet-a190c-default-rtdb.firebaseio.com/"    
 #define FIREBASE_AUTH "agQbiq7CmdPzQ1o7XAoQfkfyMJE9PtUGaqSJk4Vg"   
 

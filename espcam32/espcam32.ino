@@ -1,20 +1,20 @@
 //ESP32cam Test
 
-#include "WiFi.h"
-#include "esp_camera.h"
-#include "Arduino.h"
-#include "soc/soc.h"           // Disable brownout problems
-#include "soc/rtc_cntl_reg.h"  // Disable brownout problems
-#include "driver/rtc_io.h"
+#include <esp_camera.h>
+//#include "Arduino.h"
+#include <soc/soc.h>           // Disable brownout problems
+#include <soc/rtc_cntl_reg.h>  // Disable brownout problems
+#include <driver/rtc_io.h>
 #include <SPIFFS.h>
 #include <FS.h>
 #include <Firebase_ESP_Client.h>
 //Provide the token generation process info.
 #include <addons/TokenHelper.h>
+#include <WiFi.h>
 
 //Replace with your network credentials
 const char* ssid = "SEMEAR";
-const char* password = "SemearEhAmor"
+const char* password = "SemearEhAmor";
 
 // Insert Firebase project API Key
 #define API_KEY "AIzaSyCdOSH0AbxaNYZj4NtK6WuL4PVoKrNnwlU"  //WEB API KEY
@@ -27,7 +27,7 @@ const char* password = "SemearEhAmor"
 #define STORAGE_BUCKET_ID "smartcabinet-a190c.appspot.com"
 
 // Photo File Name to save in SPIFFS
-#define FILE_PHOTO "/Gaveta1/photo.jpeg
+#define FILE_PHOTO "/Gaveta1/photo.jpeg"
 
 // OV2640 camera module pins (CAMERA_MODEL_AI_THINKER)
 #define PWDN_GPIO_NUM     32
@@ -47,7 +47,7 @@ const char* password = "SemearEhAmor"
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-boolean takeNewPhoto = true;
+bool takeNewPhoto = true;
 
 //Define Firebase Data objects
 FirebaseData fbdo;

@@ -12,19 +12,17 @@ void setup() {
   Serial.println();
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  
+
   Serial.print("Conectando ao wifi");
-  
-  while (WiFi.status() != WL_CONNECTED)
-  {
+
+  while (WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(300);
   }
-  
+
   Serial.println();
 
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-
 }
 
 void loop() {

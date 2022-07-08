@@ -1,21 +1,21 @@
-// ESP32cam Test
+// SmartCabinet Project
 
-#include "WiFi.h"
-#include "Wire.h"
-#include "LiquidCrystal_I2C.h"
-#include "esp_camera.h"
-//#include "Arduino.h"
-
+// ESP CAM utils libraries
 #include "soc/soc.h"          // Disable brownout problems
 #include "soc/rtc_cntl_reg.h" // Disable brownout problems
 #include "driver/rtc_io.h"
-
 #include <SPIFFS.h>
 #include <FS.h>
 
+// External libraries
+#include "WiFi.h"
+#include "Wire.h"
+#include "LiquidCrystal_I2C.h"
+#include <Adafruit_Fingerprint.h>
+#include "esp_camera.h"
+// Firebase communication
 #include <Firebase_ESP_Client.h>
-// Provide the token generation process info.}
-
+// Provide the token generation process info.
 #include <addons/TokenHelper.h>
 
 // Replace with your network credentials
@@ -53,14 +53,28 @@ const char *password = "SemearEhAmor";
 #define HREF_GPIO_NUM 23
 #define PCLK_GPIO_NUM 22
 
-boolean takeNewPhoto = true;
+// LCD variables
+////////////////////////////////////
+int lcd_address = 0x27;
+LiquidCrystal_I2C lcd(lcd_address,16,2);
+////////////////////////////////////
 
+// Camera variables
+////////////////////////////////////
+boolean takeNewPhoto = true;
 // Define Firebase Data objects
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig configF;
-
 bool taskCompleted = false;
+////////////////////////////////////
+
+// Fingerprint sensor 
+////////////////////////////////////
+//Senha padrão do sensor de digitais
+const uint32_t password = 0x0;
+Adafruit_Fingerprint fingerprintSensor = Adafruit_Fingerprint(&Serial2, password);
+////////////////////////////////////
 
 // Check if photo capture was successful
 bool checkPhoto(fs::FS &fs)
@@ -74,12 +88,15 @@ void setup()
 {
     // Serial port for debugging purposes
     Serial.begin(115200);
+    
     // LCD
-
+    ////////////////////////////////////
     lcd.begin(16, 2);       // SETA A QUANTIDADE DE COLUNAS(16) E O NÚMERO DE LINHAS(2) DO DISPLAY
     lcd.setBacklight(HIGH); // LIGA O BACKLIGHT (LUZ DE FUNDO)
+    ////////////////////////////////////
 
-    // MODULO WIFI
+    // Setup WIFI
+    ////////////////////////////////////
     initWiFi();
     initSPIFFS();
     // Turn-off the 'brownout detector'

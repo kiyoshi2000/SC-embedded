@@ -95,6 +95,7 @@
                 "/home/guisoares/.arduino15/packages/esp32/hardware/esp32/1.0.6/libraries/WiFi/src",
                 "/home/guisoares/.arduino15/packages/esp32/hardware/esp32/1.0.6/libraries/Wire/src",
                 "/home/guisoares/Arduino/libraries/LiquidCrystal_I2C",
+                "/home/guisoares/Arduino/libraries/Adafruit_Fingerprint_Sensor_Library",
                 "/home/guisoares/.arduino15/packages/esp32/hardware/esp32/1.0.6/libraries/SPIFFS/src",
                 "/home/guisoares/.arduino15/packages/esp32/hardware/esp32/1.0.6/libraries/FS/src",
                 "/home/guisoares/Arduino/libraries/Firebase_Arduino_Client_Library_for_ESP8266_and_ESP32/src",

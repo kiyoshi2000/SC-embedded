@@ -16,10 +16,7 @@
 #include <Adafruit_Fingerprint.h> //https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library
 
 // Local include
-#include "capturePhotoSaveSpiffs.cpp"
 #include "checkFingerprint.cpp"
-#include "initCamera.cpp"
-#include "initSPIFFS.cpp"
 #include "initWiFi.cpp"
 #include "setupFingerprintSensor.cpp"
 

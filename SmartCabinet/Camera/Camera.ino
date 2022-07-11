@@ -15,7 +15,7 @@
 #include "utils.hpp"
 
 // I/O Pins
-#define RX_PIN 5
+#define RX_PIN 12
 
 // Wifi setup
 const char *ssid = "SEMEAR";

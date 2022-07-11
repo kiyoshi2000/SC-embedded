@@ -217,7 +217,7 @@ const uint32_t password = 0x0;
 Adafruit_Fingerprint fingerprintSensor = Adafruit_Fingerprint(&Serial2, password);
  
 
-setup
+
 void setup()  
 {
   Serial.begin(9600);
@@ -227,7 +227,6 @@ void setup()
 }
  
 
-setupFingerprintSensor
 void setupFingerprintSensor()
 {
   //Inicializa o sensor
@@ -243,7 +242,7 @@ void setupFingerprintSensor()
 }
  
 
-loop
+
 void loop()
 {
   //Exibe o menu no monitor serial
@@ -282,7 +281,6 @@ void loop()
 }
  
 
-printMenu
 //Exibe o menu no monitor serial
 void printMenu()
 {
@@ -296,7 +294,7 @@ void printMenu()
 }
  
 
-getCommand
+
 //Espera até que se digite algo no monitor serial e retorna o que foi digitado
 String getCommand()
 {
@@ -305,7 +303,6 @@ String getCommand()
 }
  
 
-storeFingerprint
 //Cadastro da digital
 void storeFingerprint()
 {
@@ -380,7 +377,6 @@ void storeFingerprint()
 }
  
 
-checkFingerprint
 //Verifica se a digital está cadastrada
 void checkFingerprint()
 {
@@ -415,7 +411,6 @@ void checkFingerprint()
 }
  
 
-printStoredFingerprintsCount
 void printStoredFingerprintsCount()
 {
   //Manda o sensor colocar em "templateCount" a quantidade de digitais salvas
@@ -427,7 +422,6 @@ void printStoredFingerprintsCount()
 }
  
 
-deleteFingerprint
 void deleteFingerprint()
 {
   Serial.println(F("Qual a posição para apagar a digital? (1 a 149)"));

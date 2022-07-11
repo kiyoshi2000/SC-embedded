@@ -1,14 +1,14 @@
 //MAIN
 
 //Include
-#include "WiFi.h"
-#include "Wire.h"
-#include "LiquidCrystal_I2C.h"
-#include "esp_camera.h"
-#include "Arduino.h"
-#include "soc/soc.h"           // Disable brownout problems
-#include "soc/rtc_cntl_reg.h"  // Disable brownout problems
-#include "driver/rtc_io.h"
+#include <WiFi.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <esp_camera.h>
+#include <Arduino.h>
+#include <soc/soc.h>           // Disable brownout problems
+#include <soc/rtc_cntl_reg.h>  // Disable brownout problems
+#include <driver/rtc_io.h>
 #include <SPIFFS.h>
 #include <FS.h>
 #include <Firebase_ESP_Client.h>
@@ -71,12 +71,28 @@ bool checkPhoto( fs::FS &fs ) {
   return ( pic_sz > 100 );
 }
 
+//LCD
+#define BACKLIGHT_PIN     13
+LiquidCrystal_I2C lcd(0x38);  // Set the LCD I2C address
+//LiquidCrystal_I2C lcd(0x38, BACKLIGHT_PIN, POSITIVE);  // Set the LCD I2C address
+
 
 //Digital
-Adafruit_Fingerprint fingerprintSensor = Adafruit_Fingerprint(&Serial2, password);
+#if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
+// For UNO and others without hardware serial, we must use software serial...
+// pin #2 is IN from sensor (GREEN wire)
+// pin #3 is OUT from arduino  (WHITE wire)
+// Set up the serial port to use softwareserial..
+SoftwareSerial mySerial(2, 3);
+#else
+// On Leonardo/M0/etc, others with hardware serial, use hardware serial!
+// #0 is green wire, #1 is white
+#define mySerial Serial1
 
-//Senha padrão do sensor de digitais
-const uint32_t password = 0x0;
+#endif
+
+
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 
 
 //Variaveis
@@ -87,8 +103,8 @@ String Operador;
 //Variaveis globais do loop
 int gav_input = 0;
 int sai = 1;
-int gaveta_open = 0;
-int gaveta_open = 0;
+int gaveta_open_1 = 0;
+int gaveta_open_2 = 0;
 int Contador = 0;
 int Contador_erro = 0;
 String LINK;
@@ -101,7 +117,9 @@ int gaveta_1 = 0;            //PORTAS
 int gaveta_2 = 0;
 int gav_open_1 = 0; 
 int gav_open_2 = 0;
-
+int Segundo = 0; 
+int Minuto = 0; 
+int Hora = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -217,7 +235,49 @@ void loop() {
   //Central de autentificação
     //Digital
       do{
-      checkFingerprint();
+          erro = 0;
+          Serial.println(F("Encoste o dedo no sensor"));
+          lcd.print("Insira a digital");
+          
+          //Espera até pegar uma imagem válida da digital
+          while (fingerprintSensor.getImage() != FINGERPRINT_OK);
+        
+          //Converte a imagem para o padrão que será utilizado para verificar com o banco de digitais
+          if (fingerprintSensor.image2Tz() != FINGERPRINT_OK)
+          {
+            //Se chegou aqui deu erro, então abortamos os próximos passos
+            Serial.println(F("Erro image2Tz"));
+            erro = 1;
+            lcd.setCursor(0,0);
+            lcd.print("ERRO");
+          }
+          
+          //Procura por este padrão no banco de digitais
+          if (fingerprintSensor.fingerFastSearch() != FINGERPRINT_OK)
+          {
+            //Se chegou aqui significa que a digital não foi encontrada
+            Serial.println(F("Digital não encontrada"));
+            erro = 1;
+            lcd.setCursor(0,0);
+            lcd.print("Digital nao");
+            lcd.setCursor(0,1);
+            lcd.print("encontrada");
+          }
+        if(erro == 0){
+          //Se chegou aqui a digital foi encontrada
+          //Mostramos a posição onde a digital estava salva e a confiança
+          //Quanto mais alta a confiança melhor
+          Serial.print(F("Digital encontrada com confiança de "));
+          Serial.print(fingerprintSensor.confidence);
+          Serial.print(F(" na posição "));
+          Serial.println(fingerprintSensor.fingerID);
+            Operador = fingerprintSensor.fingerID;
+            erro = 0;
+            lcd.setCursor(0,0);
+            lcd.print("Acesso");
+            lcd.setCursor(0,1);
+            lcd.print("Concedido");
+        } 
       }while(erro);
       
       delay(1500);

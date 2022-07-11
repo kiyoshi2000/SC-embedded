@@ -15,6 +15,13 @@
 #include <addons/TokenHelper.h>//Provide the token generation process info.}
 #include <Adafruit_Fingerprint.h> //https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library
 
+// Local include
+#include "capturePhotoSaveSpiffs.cpp"
+#include "checkFingerprint.cpp"
+#include "initCamera.cpp"
+#include "initSPIFFS.cpp"
+#include "initWiFi.cpp"
+#include "setupFingerprintSensor.cpp"
 
 //Configurações do WIFI
 const char* ssid = "SEMEAR";
@@ -73,7 +80,7 @@ bool checkPhoto( fs::FS &fs ) {
 
 //LCD
 #define BACKLIGHT_PIN     13
-LiquidCrystal_I2C lcd(0x38);  // Set the LCD I2C address
+LiquidCrystal_I2C lcd(0x38,16,2);  // Set the LCD I2C address
 //LiquidCrystal_I2C lcd(0x38, BACKLIGHT_PIN, POSITIVE);  // Set the LCD I2C address
 
 

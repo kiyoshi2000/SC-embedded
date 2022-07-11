@@ -4,13 +4,13 @@
 #include <WiFi.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-#include <esp_camera.h>
-#include <Arduino.h>
-#include <soc/soc.h>           // Disable brownout problems
-#include <soc/rtc_cntl_reg.h>  // Disable brownout problems
-#include <driver/rtc_io.h>
-#include <SPIFFS.h>
-#include <FS.h>
+//#include <esp_camera.h>
+//#include <Arduino.h>
+//#include <soc/soc.h>           // Disable brownout problems
+//#include <soc/rtc_cntl_reg.h>  // Disable brownout problems
+//#include <driver/rtc_io.h>
+//#include <SPIFFS.h>
+//#include <FS.h>
 #include <Firebase_ESP_Client.h>
 #include <addons/TokenHelper.h>//Provide the token generation process info.}
 #include <Adafruit_Fingerprint.h> //https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library
@@ -47,37 +47,6 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig configF;
 
-
-//Camera
-// OV2640 camera module pins (CAMERA_MODEL_AI_THINKER)
-#define PWDN_GPIO_NUM     32
-#define RESET_GPIO_NUM    -1
-#define XCLK_GPIO_NUM      0
-#define SIOD_GPIO_NUM     26
-#define SIOC_GPIO_NUM     27
-#define Y9_GPIO_NUM       35
-#define Y8_GPIO_NUM       34
-#define Y7_GPIO_NUM       39
-#define Y6_GPIO_NUM       36
-#define Y5_GPIO_NUM       21
-#define Y4_GPIO_NUM       19
-#define Y3_GPIO_NUM       18
-#define Y2_GPIO_NUM        5
-#define VSYNC_GPIO_NUM    25
-#define HREF_GPIO_NUM     23
-#define PCLK_GPIO_NUM     22
-
-boolean takeNewPhoto = true;
-
-bool taskCompleted = false;
-
-// Check if photo capture was successful
-bool checkPhoto( fs::FS &fs ) {
-  File f_pic = fs.open( FILE_PHOTO );
-  unsigned int pic_sz = f_pic.size();
-  return ( pic_sz > 100 );
-}
-
 //LCD
 #define BACKLIGHT_PIN     13
 LiquidCrystal_I2C lcd(0x38,16,2);  // Set the LCD I2C address
@@ -85,18 +54,7 @@ LiquidCrystal_I2C lcd(0x38,16,2);  // Set the LCD I2C address
 
 
 //Digital
-#if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
-// For UNO and others without hardware serial, we must use software serial...
-// pin #2 is IN from sensor (GREEN wire)
-// pin #3 is OUT from arduino  (WHITE wire)
-// Set up the serial port to use softwareserial..
 SoftwareSerial mySerial(2, 3);
-#else
-// On Leonardo/M0/etc, others with hardware serial, use hardware serial!
-// #0 is green wire, #1 is white
-#define mySerial Serial1
-
-#endif
 
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
@@ -120,13 +78,16 @@ String Endereco = "Gaveta/";
 String Endereco_erro = "Erro/";
 float tempo = 0;
 String Horario = "00:00:00";
-int gaveta_1 = 0;            //PORTAS
-int gaveta_2 = 0;
-int gav_open_1 = 0; 
-int gav_open_2 = 0;
 int Segundo = 0; 
 int Minuto = 0; 
 int Hora = 0;
+//PORTAS
+int gaveta_1 = 0;            
+int gaveta_2 = 0;
+int gav_open_1 = 0; 
+int gav_open_2 = 0;
+int arrombamento = 0;
+int grava = 0; 
 
 void setup() {
   Serial.begin(115200);
@@ -202,40 +163,7 @@ void loop() {
              sai = 0;
        }
        
-       if(gav_open_1 || gav_open_2){  //Arombamento
-              if (takeNewPhoto) {
-              capturePhotoSaveSpiffs();
-              takeNewPhoto = false;
-            }
-            delay(1);
-            if (Firebase.ready() && !taskCompleted){
-              taskCompleted = true;
-              Serial.print("Uploading picture... ");
-          
-              //MIME type should be valid to avoid the download problem.
-              //The file systems for flash and SD/SDMMC can be changed in FirebaseFS.h.
-              if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, FILE_PHOTO /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, FILE_PHOTO /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */)){
-                Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
-                LINK_erro = fbdo.downloadURL().c_str();
-              }
-              else{
-                Serial.println(fbdo.errorReason());
-                LINK_erro = "ERRO";
-              }
-            }
-              
-              Endereco_erro = String(Endereco_erro + String(Contador_erro));
-              
-              //Envio de dados Firebase  
-              Firebase.pushString("Erro", String(Contador_erro));
-              Firebase.pushString(Endereco_erro, "Horario");
-              Firebase.setString(String(Endereco_erro + "/Horario"), Horario);
-              Firebase.pushString(Endereco_erro, "Gif");
-              Firebase.setString(String(Endereco_erro + "/Gif"), LINK_erro);
-
-              Contador_erro++;
-              Endereco_erro = "Erro/"
-        }
+      
       }while(sai);
        Firebase.setInt("Auxiliary/Acess_Request/Atualizador", false);
        
@@ -284,15 +212,56 @@ void loop() {
             lcd.print("Acesso");
             lcd.setCursor(0,1);
             lcd.print("Concedido");
+            digitalWrite(arrombamento,LOW);
+            digitalWrite(grava,HIGH);
+            
+        }
+         if(gav_open_1 == 0||gav_open_2 == 0){
+            //Avisa a espcam
+            erro = 1;
+            digitalWrite(arrombamento,HIGH);
+            digitalWrite(grava,HIGH);
+            
+            Endereco_erro = String(Endereco_erro + String(Contador_erro));
+              
+              //Envio de dados Firebase  
+              Firebase.pushString("Erro", String(Contador_erro));
+              Firebase.pushString(Endereco_erro, "Horario");
+              Firebase.setString(String(Endereco_erro + "/Horario"), Horario);
+
+              Contador_erro++;
+              Endereco_erro = "Erro/"
+              
+            //Alerta
+            while(gav_open_1 == 0||gav_open_2 == 0){
+            lcd.setCursor(0,0);
+            lcd.print("ARROMBAMENTO");
+            delay(500);
+            lcd.print("             ");
+            delay(500);
+            }
+            digitalWrite(grava,LOW);
+            }
         } 
       }while(erro);
       
       delay(1500);
       lcd.setCursor(0,0);
-      lcd.print("Abra a gaveta: ");
-      lcd.setCursor(16,0);
-      lcd.print(gav_input);
-    
+      lcd.print("Abra a/s gaveta/s: ");
+      
+      if(gav_input = 0){
+        lcd.setCursor(16,0);
+        lcd.print("1");
+      }
+       if(gav_input = 1){
+        lcd.setCursor(16,0);
+        lcd.print("2");
+      }
+       if(gav_input = 2){
+        lcd.setCursor(0,1);
+        lcd.print("1 e 2");
+      }
+      
   //Abertura das gavetas
       if(erro == 0){
         if(gav_input == 0){
@@ -308,28 +277,6 @@ void loop() {
       }
 
      
-  //Central de gravação
-          if (takeNewPhoto) {
-            capturePhotoSaveSpiffs();
-            takeNewPhoto = false;
-          }
-          delay(1);
-          if (Firebase.ready() && !taskCompleted){
-            taskCompleted = true;
-            Serial.print("Uploading picture... ");
-        
-            //MIME type should be valid to avoid the download problem.
-            //The file systems for flash and SD/SDMMC can be changed in FirebaseFS.h.
-            if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, FILE_PHOTO /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, FILE_PHOTO /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */)){
-              Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
-              LINK = fbdo.downloadURL().c_str();
-            }
-            else{
-              Serial.println(fbdo.errorReason());
-              LINK = "ERRO";
-            }
-          }
-     
     delay(3000);
     
   //Retravamento
@@ -339,11 +286,12 @@ void loop() {
         delay(1000);
         lcd.setCursor(0,0);
         lcd.print("                ");
-    }while(gav_open_1 || gav_open_2)
+    }while(gav_open_1 == 0 || gav_open_2 == 0)
   
     digitalWrite(gaveta_1,LOW);
     digitalWrite(gaveta_2,LOW);
-
+    digitalWrite(grava,LOW);
+    
     Endereco = String(Endereco + String(Contador));
   
   //Envio de dados Firebase  

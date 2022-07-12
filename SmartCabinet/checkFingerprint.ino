@@ -1,3 +1,4 @@
+#include "LiquidCrystal_I2C.h"
 //Verifica se a digital está cadastrada
   void checkFingerprint(){
     Serial.println(F("Encoste o dedo no sensor"));

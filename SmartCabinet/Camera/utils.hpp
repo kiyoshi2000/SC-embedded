@@ -126,7 +126,7 @@ void capturePhotoSaveSpiffs(String spiffs_file)
         }
         else
         {
-            file.1(fb->buf, fb->len); // payload (image), payload length
+            file.write(fb->buf, fb->len); // payload (image), payload length
             Serial.print("The picture has been saved in ");
             Serial.print(spiffs_file);
             Serial.print(" - Size: ");

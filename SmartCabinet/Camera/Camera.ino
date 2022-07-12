@@ -40,15 +40,16 @@ FirebaseConfig configF;
 // Variaveis globais do loop
 String download_link = "";
 // Photo File Name to save in SPIFFS and at Firebase Storage
-String spiffs_file = "temp.jpeg";
+String spiffs_file = "/temp.jpeg";
 String remote_path_base = "/Access/access/";
-String remote_filename = "";
 String remote_path = "";
 int photo_counter = 0;
 bool take_photo = false;
 
 void setup()
 {
+    Serial.println("SMART CABINET v0.1");
+
     // Inicialização
     delay(1500);
     
@@ -72,6 +73,8 @@ void setup()
     configF.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
     Firebase.begin(&configF, &auth);
     Firebase.reconnectWiFi(true);
+
+    Serial.println("Setup done!\n Waiting for recording order...");
 }
 
 void loop()
@@ -79,26 +82,27 @@ void loop()
     // Recebimento dos dados do firebase
     // Gaveta a ser aberta
 
-    if(digitalRead(RX_PIN) == HIGH){
+    if(digitalRead(RX_PIN) == HIGH && !take_photo){
         take_photo = true;
         Serial.println("RX pin set to true. Order to start saving images.");
     }
-    else if(digitalRead(RX_PIN) == LOW){
+    else if(digitalRead(RX_PIN) == LOW && take_photo){
         take_photo = false;
         Serial.println("RX pin set to false. Order to stop saving images.");
+        Serial.println("Waiting for recording order...");
     }
 
     // DO NOT SEND MORE THAN 10 IMAGES (ONLY FOR TESTING)
     if (take_photo && (photo_counter <= 10))
     {
         Serial.println("Capturing photo...");
-        capturePhotoSaveSpiffs(spiffs_file);
+        capturePhotoSaveSpiffs(spiffs_file.c_str());
 
         if (Firebase.ready())
         {
             // Build path + filename
             remote_path = remote_path_base + String(photo_counter) + ".jpeg";
-            Serial.printf("Uploading picture %s... ", remote_filename);
+            Serial.printf("Uploading picture %s... ", remote_path.c_str());
 
             // MIME type should be valid to avoid the download problem.
             // The file systems for flash and SD/SDMMC can be changed in FirebaseFS.h.
@@ -106,7 +110,7 @@ void loop()
                                         STORAGE_BUCKET_ID /* Firebase Storage bucket id */,
                                         spiffs_file /* path to local file */,
                                         mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */,
-                                        remote_filename /* path of remote file stored in the bucket */,
+                                        remote_path /* path of remote file stored in the bucket */,
                                         "image/jpeg" /* mime type */))
             {
                 // If upload was ok
@@ -118,7 +122,9 @@ void loop()
             }
             else
             {
+                Serial.println("-------Error-------");
                 Serial.println(fbdo.errorReason());
+                delay(1000);
             }
         }
     }

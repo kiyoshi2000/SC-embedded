@@ -2,5 +2,6 @@
     "configuration": "CPUFreq=240,FlashMode=qio,FlashFreq=80",
     "board": "esp32:esp32:esp32cam",
     "port": "/dev/ttyUSB0",
-    "sketch": "SmartCabinet/Camera/Camera.ino"
+    "sketch": "SmartCabinet/Camera/Camera.ino",
+    "output": "../ArduinoOutput"
 }

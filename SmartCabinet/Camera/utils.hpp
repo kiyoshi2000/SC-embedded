@@ -108,7 +108,7 @@ void capturePhotoSaveSpiffs(String spiffs_file)
     while (!ok)
     {
         // Take a photo with the camera
-        Serial.println("Taking a photo...");
+        Serial.println("Taking photo...");
 
         fb = esp_camera_fb_get();
         if (!fb)
@@ -118,7 +118,7 @@ void capturePhotoSaveSpiffs(String spiffs_file)
         }
         // Photo file name
         Serial.printf("Picture file name: %s\n", spiffs_file);
-        File file = SPIFFS.open(spiffs_file, FILE_WRITE);
+        File file = SPIFFS.open(spiffs_file.c_str(), FILE_WRITE);
         // Insert the data in the photo file
         if (!file)
         {
@@ -126,7 +126,7 @@ void capturePhotoSaveSpiffs(String spiffs_file)
         }
         else
         {
-            file.write(fb->buf, fb->len); // payload (image), payload length
+            file.1(fb->buf, fb->len); // payload (image), payload length
             Serial.print("The picture has been saved in ");
             Serial.print(spiffs_file);
             Serial.print(" - Size: ");

@@ -10,8 +10,8 @@
 #include <Adafruit_Fingerprint.h> //https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library
 
 // Configurações do WIFI
-const char *ssid = "Backupnet";
-const char *password = "lanevoxje";
+const char *ssid = "Galaxy A7";
+const char *password = "12345678";
 
 // Firebase
 // Define Firebase Data objects
@@ -21,6 +21,9 @@ FirebaseConfig configF;
 
 /* 3. Define the project ID */
 #define FIREBASE_PROJECT_ID "smartcabinet-a190c"
+
+#define DATABASE_URL "smartcabinet-a190c-default-rtdb.firebaseio.com" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+
 
 // Chave do Firebase
 #define API_KEY "AIzaSyCdOSH0AbxaNYZj4NtK6WuL4PVoKrNnwlU" // WEB API KEY
@@ -135,6 +138,7 @@ void setup()
   // Assign the user sign in credentials
   auth.user.email = USER_EMAIL;
   auth.user.password = USER_PASSWORD;
+  configF.database_url = DATABASE_URL;
   Firebase.begin(&configF, &auth);
   Firebase.reconnectWiFi(true);
   Firebase.RTDB.enableClassicRequest(&fbdo, true);
@@ -332,7 +336,7 @@ void loop()
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Processando dados...");
-  Firebase.RTDB.setBool(&fbdo, "Atualizador", false);
+  Firebase.RTDB.setBool(&fbdo, F("Atualizador"), false);
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Dados processados!");
